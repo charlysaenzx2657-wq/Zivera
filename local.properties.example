@@ -1,0 +1,7 @@
+# Copy this file to "local.properties" (same folder) and fill in your real
+# keys there. "local.properties" is in .gitignore — it never gets committed.
+#
+# sdk.dir=/path/to/Android/sdk    <- Android Studio adds this line automatically
+
+youtube.api.key=PEGA_AQUI_TU_YOUTUBE_API_KEY
+jamendo.client.id=PEGA_AQUI_TU_JAMENDO_CLIENT_ID

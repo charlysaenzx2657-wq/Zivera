@@ -1,0 +1,7 @@
+<resources>
+    <style name="Theme.VerdorMusica" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">#0A0612</item>
+        <item name="android:windowBackground">#05070A</item>
+        <item name="android:navigationBarColor">#0A0612</item>
+    </style>
+</resources>

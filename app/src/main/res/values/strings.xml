@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">Zireva</string>
+
+    <string name="nav_home">Inicio</string>
+    <string name="nav_search">Buscar</string>
+    <string name="nav_library">Biblioteca</string>
+    <string name="nav_settings">Ajustes</string>
+
+    <string name="your_music">Tu música</string>
+    <string name="downloaded_offline">Descargado (offline)</string>
+    <string name="empty_library">Aún no tienes canciones guardadas. Descarga algo desde Jamendo en \"Buscar\".</string>
+
+    <string name="search_hint">Canciones, artistas…</string>
+    <string name="source_youtube">YouTube</string>
+    <string name="source_jamendo">Jamendo</string>
+    <string name="note_youtube">Streaming en vivo · sin ecualizador · necesita internet</string>
+    <string name="note_jamendo">Música libre de derechos · se puede descargar y usar sin conexión</string>
+    <string name="no_results">Sin resultados.</string>
+    <string name="searching">Buscando…</string>
+
+    <string name="need_key_youtube">Agrega tu YouTube API key en Ajustes para buscar.</string>
+    <string name="need_key_jamendo">Agrega tu Jamendo Client ID en Ajustes para buscar.</string>
+
+    <string name="settings_api_keys">Claves de API</string>
+    <string name="yt_key_label">YouTube Data API key</string>
+    <string name="yt_key_help">Gratis en console.cloud.google.com → habilita \"YouTube Data API v3\" → crea una credencial.</string>
+    <string name="jamendo_key_label">Jamendo Client ID</string>
+    <string name="jamendo_key_help">Gratis en devportal.jamendo.com → crea una app → copia el Client ID.</string>
+    <string name="save">Guardar</string>
+    <string name="saved">Guardado ✓</string>
+
+    <string name="equalizer">Ecualizador</string>
+    <string name="eq_disabled_note">No disponible en streams de YouTube (restricción de su reproductor).</string>
+    <string name="bass">Graves</string>
+    <string name="mid">Medios</string>
+    <string name="treble">Agudos</string>
+
+    <string name="nothing_playing">Nada sonando</string>
+    <string name="download">Descargar</string>
+    <string name="remove_download">Quitar descarga</string>
+    <string name="clear_library">Borrar biblioteca offline</string>
+    <string name="confirm_clear">¿Borrar toda tu biblioteca offline? No se puede deshacer.</string>
+</resources>
