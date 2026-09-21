@@ -11,6 +11,8 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -33,6 +35,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             VerdorMusicaTheme {
+              Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+              ) {
                 var screen by remember { mutableStateOf("inicio") }
                 var playerOpen by remember { mutableStateOf(false) }
 
@@ -159,6 +165,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
+              }
             }
         }
     }
