@@ -38,43 +38,6 @@ class MainActivity : ComponentActivity() {
             VerdorMusicaTheme {
               Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = androidx.compose.ui.graphics.Color.Red
-              ) {
-                androidx.compose.material3.Text(
-                    "OK — Compose está dibujando",
-                    color = androidx.compose.ui.graphics.Color.White,
-                    fontSize = 24.sp,
-                    modifier = Modifier.padding(40.dp)
-                )
-              }
-            }
-        }
-    }
-}
-
-private fun formatMs(ms: Long): String {
-    val totalSec = ms / 1000
-    val m = totalSec / 60
-    val s = totalSec % 60
-    return "$m:${s.toString().padStart(2, '0')}"
-}
-
-// Small helper so Composables above can call stringResource outside a @Composable
-// context-sensitive spot without extra imports noise.
-@androidx.compose.runtime.Composable
-private fun stringResource_(id: Int): String = androidx.compose.ui.res.stringResource(id)
-
-/* ============================================================
-   TEMPORARY: original setContent body, disabled while we
-   diagnose the black-screen issue above. Once confirmed the red
-   test screen shows up, delete the block above (from "setContent {"
-   down through the closing of onCreate) and un-comment this whole
-   block back into onCreate() to restore the real app.
-   ============================================================
-        setContent {
-            VerdorMusicaTheme {
-              Surface(
-                modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colorScheme.background
               ) {
                 var screen by remember { mutableStateOf("inicio") }
@@ -94,6 +57,9 @@ private fun stringResource_(id: Int): String = androidx.compose.ui.res.stringRes
                 var positionLabel by remember { mutableStateOf("0:00") }
                 var durationLabel by remember { mutableStateOf("0:00") }
 
+                // Hidden WebView hosting the YouTube IFrame player. Kept
+                // off-screen (1dp) — its own player UI is never shown,
+                // our Compose UI is the only visible player surface.
                 var ytPlayer: YoutubeWebPlayer? by remember { mutableStateOf(null) }
 
                 LaunchedEffect(Unit) {
@@ -102,6 +68,7 @@ private fun stringResource_(id: Int): String = androidx.compose.ui.res.stringRes
                     vm.ytLoadControl = { videoId -> ytPlayer?.loadVideo(videoId) }
                 }
 
+                // Lightweight polling loop for progress bar (works for both engines)
                 LaunchedEffect(nowPlaying, isPlaying) {
                     while (true) {
                         kotlinx.coroutines.delay(500)
@@ -162,6 +129,8 @@ private fun stringResource_(id: Int): String = androidx.compose.ui.res.stringRes
                         )
                     }
 
+                    // Hidden YouTube WebView host (1dp, off-screen visually but attached
+                    // so playback keeps running)
                     Box(modifier = Modifier.size(1.dp)) {
                         AndroidView(factory = { ctx ->
                             WebView(ctx).apply {
@@ -200,4 +169,17 @@ private fun stringResource_(id: Int): String = androidx.compose.ui.res.stringRes
               }
             }
         }
-   ============================================================ */
+    }
+}
+
+private fun formatMs(ms: Long): String {
+    val totalSec = ms / 1000
+    val m = totalSec / 60
+    val s = totalSec % 60
+    return "$m:${s.toString().padStart(2, '0')}"
+}
+
+// Small helper so Composables above can call stringResource outside a @Composable
+// context-sensitive spot without extra imports noise.
+@androidx.compose.runtime.Composable
+private fun stringResource_(id: Int): String = androidx.compose.ui.res.stringResource(id)
