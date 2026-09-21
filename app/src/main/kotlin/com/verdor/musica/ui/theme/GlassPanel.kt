@@ -11,6 +11,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -32,7 +33,7 @@ import androidx.compose.ui.unit.dp
 fun GlassPanel(
     modifier: Modifier = Modifier,
     cornerRadius: Dp = 18.dp,
-    content: @Composable Box.() -> Unit
+    content: @Composable () -> Unit
 ) {
     val transition = rememberInfiniteTransition(label = "sheen")
     val sheenOffset by transition.animateFloat(
