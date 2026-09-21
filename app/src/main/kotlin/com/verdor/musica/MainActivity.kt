@@ -134,6 +134,13 @@ class MainActivity : ComponentActivity() {
                     Box(modifier = Modifier.size(1.dp)) {
                         AndroidView(factory = { ctx ->
                             WebView(ctx).apply {
+                                // Force software rendering: without this, this WebView's
+                                // hardware layer (SurfaceView) can punch through the whole
+                                // window on some OEM skins (seen on Motorola devices),
+                                // painting the entire screen black even though it's sized
+                                // at 1dp and Compose is drawing everything else correctly
+                                // underneath. This is the actual fix for the black screen.
+                                setLayerType(android.view.View.LAYER_TYPE_SOFTWARE, null)
                                 settings.javaScriptEnabled = true
                                 settings.mediaPlaybackRequiresUserGesture = false
                                 ytPlayer = YoutubeWebPlayer(this)
