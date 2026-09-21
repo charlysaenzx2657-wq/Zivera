@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -9,15 +11,13 @@ plugins {
 // In CI, the GitHub Actions workflow writes this same file from repo
 // Secrets before the build runs, so the compiled APK also ships with
 // working defaults without the keys ever touching the public repo source.
-val localProps = java.util.Properties().apply {
+val localProps = Properties().apply {
     val f = rootProject.file("local.properties")
     if (f.exists()) f.inputStream().use { load(it) }
 }
 fun defaultKey(name: String): String = (localProps.getProperty(name) ?: "").let {
     "\"" + it.replace("\"", "\\\"") + "\""
 }
-
-android {
     namespace = "com.verdor.musica"
     compileSdk = 34
 
