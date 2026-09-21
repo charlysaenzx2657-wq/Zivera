@@ -18,6 +18,8 @@ val localProps = Properties().apply {
 fun defaultKey(name: String): String = (localProps.getProperty(name) ?: "").let {
     "\"" + it.replace("\"", "\\\"") + "\""
 }
+
+android {
     namespace = "com.verdor.musica"
     compileSdk = 34
 
