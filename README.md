@@ -79,7 +79,44 @@ a **Zireva** en `strings.xml` (ES y EN). El paquete interno sigue siendo
 sobre el audio que efectivamente suena, en dispositivos que soportan el
 efecto (la gran mayoría).
 
-## 🗂️ Estructura
+## 👤 Cuenta y sincronización en la nube (Firebase)
+
+Login real (correo + contraseña) que guarda tus favoritos y qué has
+descargado en la nube, sincronizado entre dispositivos. Los archivos de
+audio en sí **no** se suben (serían muy pesados para el plan gratis) — solo
+la lista de qué tienes, para poder re-descargarlo fácil en otro teléfono.
+
+### Configuración (gratis, ~10 min)
+1. Ve a [console.firebase.google.com](https://console.firebase.google.com) → "Agregar proyecto" (gratis, plan Spark)
+2. Dentro del proyecto: **Compilación → Authentication → Comenzar → Correo electrónico/contraseña → Habilitar**
+3. **Compilación → Firestore Database → Crear base de datos** → modo producción (le pegamos las reglas abajo)
+4. En **Reglas** de Firestore, pega esto (cada usuario solo puede leer/escribir sus propios datos):
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /users/{userId}/{document=**} {
+         allow read, write: if request.auth != null && request.auth.uid == userId;
+       }
+     }
+   }
+   ```
+5. **Configuración del proyecto (⚙️) → tus apps → Agregar app → Android**
+   - Nombre del paquete: `com.verdor.musica`
+   - Descarga el archivo **`google-services.json`**
+6. Copia ese archivo a la carpeta `app/` de este proyecto (junto a `build.gradle.kts`), y súbelo tal cual a tu repo de GitHub — **no es un secreto** (Firebase lo dice explícitamente: la seguridad real la dan las Reglas de Firestore del paso 4, no ocultar este archivo)
+
+Con eso, "Ajustes → Cuenta" ya deja crear cuenta / iniciar sesión de verdad.
+
+## 📣 Sobre el espacio de publicidad
+
+El recuadro que dice "Espacio para banner/native ad" en Inicio es un
+**placeholder intencional** — no es un bug. Integrar una red de anuncios de
+verdad (AdMob de Google es lo más simple, o Monetag en formato banner)
+requiere que primero crees una cuenta ahí y me pases tu Ad Unit ID; en ese
+momento reemplazo el placeholder por el SDK real. Dime cuál prefieres y lo
+conectamos.
+
 ```
 app/src/main/kotlin/com/verdor/musica/
   MainActivity.kt        → navegación + WebView de YouTube + mini player

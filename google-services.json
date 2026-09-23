@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "489712923643",
+    "project_id": "zivera-8f994",
+    "storage_bucket": "zivera-8f994.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:489712923643:android:c33afdf940c3f88e33915e",
+        "android_client_info": {
+          "package_name": "com.verdor.musica"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "489712923643-ndhf79tplrt1v6btchrak4b7fves1a8i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2EKZUFEG5tcICIBq59r5bZVtrwswAu7U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "489712923643-ndhf79tplrt1v6btchrak4b7fves1a8i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

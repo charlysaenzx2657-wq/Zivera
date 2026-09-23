@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.*
@@ -44,11 +45,15 @@ class MainActivity : ComponentActivity() {
                 var playerOpen by remember { mutableStateOf(false) }
 
                 val library by vm.library.collectAsStateWithLifecycle()
+                val favorites by vm.favorites.collectAsStateWithLifecycle()
                 val nowPlaying by vm.nowPlaying.collectAsStateWithLifecycle()
                 val isPlaying by vm.isPlaying.collectAsStateWithLifecycle()
                 val ytResults by vm.searchResultsYt.collectAsStateWithLifecycle()
                 val jamendoResults by vm.searchResultsJamendo.collectAsStateWithLifecycle()
                 val searchError by vm.searchError.collectAsStateWithLifecycle()
+                val currentUser by vm.currentUser.collectAsStateWithLifecycle()
+                val authBusy by vm.authBusy.collectAsStateWithLifecycle()
+                val authError by vm.authError.collectAsStateWithLifecycle()
                 val eqBass by vm.settings.eqBass.collectAsStateWithLifecycle(initialValue = 0f)
                 val eqMid by vm.settings.eqMid.collectAsStateWithLifecycle(initialValue = 0f)
                 val eqTreble by vm.settings.eqTreble.collectAsStateWithLifecycle(initialValue = 0f)
@@ -86,7 +91,8 @@ class MainActivity : ComponentActivity() {
                 Box(modifier = Modifier.fillMaxSize()) {
                     Column(modifier = Modifier.fillMaxSize()) {
                         Box(modifier = Modifier.weight(1f)) {
-                            when (screen) {
+                            Crossfade(targetState = screen, label = "screen-switch") { s ->
+                            when (s) {
                                 "inicio" -> HomeScreen(library = library, onOpenTrack = { vm.playLocal(it); playerOpen = true })
                                 "buscar" -> SearchScreen(
                                     ytResults = ytResults,
@@ -99,10 +105,23 @@ class MainActivity : ComponentActivity() {
                                 )
                                 "biblioteca" -> LibraryScreen(
                                     tracks = library,
+                                    favorites = favorites,
                                     onPlay = { vm.playLocal(it); playerOpen = true },
-                                    onRemove = { vm.removeFromLibrary(it) }
+                                    onRemove = { vm.removeFromLibrary(it) },
+                                    onPlayFavorite = { vm.playFavorite(it); playerOpen = true },
+                                    onRemoveFavorite = { vm.removeFavorite(it.id) }
                                 )
-                                "ajustes" -> SettingsScreen(settings = vm.settings, onClearLibrary = { vm.clearLibrary() })
+                                "ajustes" -> SettingsScreen(
+                                    settings = vm.settings,
+                                    onClearLibrary = { vm.clearLibrary() },
+                                    userEmail = currentUser?.email,
+                                    authBusy = authBusy,
+                                    authError = authError,
+                                    onSignIn = { e, p -> vm.signIn(e, p) },
+                                    onSignUp = { e, p -> vm.signUp(e, p) },
+                                    onSignOut = { vm.signOut() }
+                                )
+                            }
                             }
                         }
 
@@ -169,7 +188,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onClose = { playerOpen = false },
                             onDownload = { vm.downloadCurrentJamendo() },
-                            showDownload = nowPlaying?.source == Source.JAMENDO && nowPlaying?.jamendoTrack != null
+                            showDownload = nowPlaying?.source == Source.JAMENDO && nowPlaying?.jamendoTrack != null,
+                            isFavorite = nowPlaying?.let { np -> favorites.any { it.id == np.id } } ?: false,
+                            onToggleFavorite = { vm.toggleFavoriteCurrent() }
                         )
                     }
                 }

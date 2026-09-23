@@ -37,7 +37,9 @@ fun PlayerScreen(
     onSeek: (Float) -> Unit,
     onClose: () -> Unit,
     onDownload: () -> Unit,
-    showDownload: Boolean
+    showDownload: Boolean,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit
 ) {
     val isYoutube = nowPlaying?.source == Source.YOUTUBE
 
@@ -106,6 +108,14 @@ fun PlayerScreen(
                     if (isPlaying) Icons.Filled.Pause else Icons.Filled.PlayArrow,
                     contentDescription = null,
                     tint = Color(0xFF05170D)
+                )
+            }
+            Spacer(Modifier.width(12.dp))
+            IconButton(onClick = onToggleFavorite) {
+                Icon(
+                    if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = null,
+                    tint = if (isFavorite) Color(0xFFE8615A) else Ink
                 )
             }
         }

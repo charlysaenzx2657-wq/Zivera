@@ -14,7 +14,7 @@ class DownloadRepository(private val context: Context) {
 
     private val dao = AppDatabase.get(context).trackDao()
 
-    suspend fun downloadJamendoTrack(track: JamendoTrack) = withContext(Dispatchers.IO) {
+    suspend fun downloadJamendoTrack(track: JamendoTrack): TrackEntity = withContext(Dispatchers.IO) {
         val url = track.audiodownload.ifBlank { track.audio }
         val request = Request.Builder().url(url).build()
         val response = NetworkModule.downloadClient.newCall(request).execute()
@@ -26,8 +26,7 @@ class DownloadRepository(private val context: Context) {
             outFile.outputStream().use { output -> input.copyTo(output) }
         }
 
-        dao.insert(
-            TrackEntity(
+        val entity = TrackEntity(
                 id = "jamendo_${track.id}",
                 name = track.name,
                 artist = track.artist_name,
@@ -36,7 +35,8 @@ class DownloadRepository(private val context: Context) {
                 addedAt = System.currentTimeMillis(),
                 fileSizeBytes = outFile.length()
             )
-        )
+        dao.insert(entity)
+        entity
     }
 
     suspend fun removeTrack(id: String, filePath: String) = withContext(Dispatchers.IO) {
