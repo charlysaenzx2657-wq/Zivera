@@ -12,7 +12,6 @@ import com.verdor.musica.data.TrackEntity
 import com.verdor.musica.network.JamendoTrack
 import com.verdor.musica.network.NetworkModule
 import com.verdor.musica.network.YoutubeItem
-import com.verdor.musica.player.PlayerManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -34,7 +33,10 @@ data class NowPlaying(
 class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val app = application as VerdorApp
     val settings = app.settingsStore
-    val playerManager = PlayerManager(application)
+    // Shared with PlaybackService — NOT created here anymore, so playback
+    // survives this ViewModel being cleared (e.g. Activity recreated).
+    val playerManager = app.playerManager
+    val playbackError: StateFlow<String?> = playerManager.playbackError
 
     private val dao = AppDatabase.get(application).trackDao()
     val library: StateFlow<List<TrackEntity>> =
@@ -73,6 +75,14 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun signOut() = authRepo.signOut()
+
+    fun signInWithGoogle(idToken: String) = viewModelScope.launch {
+        _authBusy.value = true; _authError.value = null
+        authRepo.signInWithGoogleIdToken(idToken)
+            .onSuccess { pullCloudData() }
+            .onFailure { _authError.value = it.message }
+        _authBusy.value = false
+    }
 
     /** Called right after login/signup: merges whatever's already saved in
      * the cloud into this device's local Room tables (doesn't touch the
@@ -198,7 +208,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             id = "jamendo_${track.id}", name = track.name, artist = track.artist_name,
             coverSeed = track.id, source = Source.JAMENDO, jamendoTrack = track
         )
-        playerManager.playUrl(track.audio)
+        playerManager.playUrl(track.audio, track.name, track.artist_name)
         _isPlaying.value = true
     }
 
@@ -208,7 +218,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
             id = entity.id, name = entity.name, artist = entity.artist,
             coverSeed = entity.coverSeed, source = Source.JAMENDO
         )
-        playerManager.playLocalFile(entity.filePath)
+        playerManager.playLocalFile(entity.filePath, entity.name, entity.artist)
         _isPlaying.value = true
     }
 
@@ -252,8 +262,42 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    // ---- Connectivity + offline mode ----
+    private val connectivityObserver = com.verdor.musica.data.ConnectivityObserver(application)
+    val isOnline: StateFlow<Boolean> =
+        connectivityObserver.isOnline.stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    val offlineModeManual: StateFlow<Boolean> =
+        settings.offlineModeManual.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    /** True when the app should behave as offline: either there's really no
+     * connection, or the user explicitly switched on "Modo offline" in
+     * Ajustes (e.g. to save data even with internet available). */
+    val effectiveOffline: StateFlow<Boolean> = kotlinx.coroutines.flow.combine(isOnline, offlineModeManual) { online, manual ->
+        !online || manual
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    fun setOfflineModeManual(enabled: Boolean) = viewModelScope.launch {
+        settings.setOfflineModeManual(enabled)
+    }
+
+    // ---- Home "Descubre" (random/popular Jamendo tracks, so Home isn't empty) ----
+    private val _discover = MutableStateFlow<List<JamendoTrack>>(emptyList())
+    val discover: StateFlow<List<JamendoTrack>> = _discover
+
+    fun loadDiscover() = viewModelScope.launch {
+        if (effectiveOffline.value) return@launch
+        val id = settings.jamendoClientId.first()
+        if (id.isBlank()) return@launch
+        runCatching {
+            NetworkModule.jamendoApi.discover(clientId = id)
+        }.onSuccess { _discover.value = it.results }
+    }
+
     override fun onCleared() {
         super.onCleared()
-        playerManager.release()
+        // playerManager is app-scoped now (lives in VerdorApp / PlaybackService)
+        // — do NOT release it here, or background playback would stop the
+        // moment this screen's ViewModel gets cleared.
     }
 }

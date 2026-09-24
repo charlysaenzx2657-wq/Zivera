@@ -31,18 +31,16 @@ fun SettingsScreen(
     authError: String?,
     onSignIn: (String, String) -> Unit,
     onSignUp: (String, String) -> Unit,
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
+    onSignInWithGoogle: () -> Unit,
+    offlineModeManual: Boolean,
+    onSetOfflineMode: (Boolean) -> Unit,
+    isOnline: Boolean
 ) {
     val scope = rememberCoroutineScope()
-    val ytKey by settings.youtubeKeyRaw.collectAsState(initial = "")
-    val jamendoId by settings.jamendoClientIdRaw.collectAsState(initial = "")
     val lang by settings.language.collectAsState(initial = "auto")
 
-    var ytField by remember(ytKey) { mutableStateOf(ytKey) }
-    var jamendoField by remember(jamendoId) { mutableStateOf(jamendoId) }
     var showConfirmClear by remember { mutableStateOf(false) }
-    var saved by remember { mutableStateOf(false) }
-
     var emailField by remember { mutableStateOf("") }
     var passwordField by remember { mutableStateOf("") }
 
@@ -74,6 +72,14 @@ fun SettingsScreen(
                 "Inicia sesión para guardar tus favoritos y descargas en la nube (opcional — la app funciona igual sin cuenta, solo local).",
                 color = Muted, fontSize = 11.5.sp, lineHeight = 16.sp, modifier = Modifier.padding(bottom = 10.dp)
             )
+
+            OutlinedButton(onClick = onSignInWithGoogle, modifier = Modifier.fillMaxWidth()) {
+                Text("Continuar con Google")
+            }
+            Spacer(Modifier.height(14.dp))
+            Text("— o con correo —", color = Muted, fontSize = 11.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
+            Spacer(Modifier.height(10.dp))
+
             OutlinedTextField(
                 value = emailField, onValueChange = { emailField = it },
                 label = { Text("Correo") }, singleLine = true,
@@ -108,40 +114,31 @@ fun SettingsScreen(
             }
         }
 
-        // ---- API keys ----
+        // ---- Offline mode ----
         Spacer(Modifier.height(24.dp))
-        Text(stringResource(R.string.settings_api_keys), color = Ink, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
-        Spacer(Modifier.height(6.dp))
-        if (settings.hasBuiltInYoutubeKey || settings.hasBuiltInJamendoKey) {
-            Text(
-                "Ya hay una clave predeterminada activa (compilada con la app). Solo llena esto si quieres usar la tuya propia en su lugar.",
-                color = Green, fontSize = 11.5.sp, lineHeight = 16.sp
-            )
-            Spacer(Modifier.height(10.dp))
-        }
-
-        Text(stringResource(R.string.yt_key_label), color = Muted, fontSize = 12.sp)
-        OutlinedTextField(value = ytField, onValueChange = { ytField = it }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-        Text(stringResource(R.string.yt_key_help), color = Muted, fontSize = 11.sp, modifier = Modifier.padding(top = 4.dp, bottom = 14.dp))
-
-        Text(stringResource(R.string.jamendo_key_label), color = Muted, fontSize = 12.sp)
-        OutlinedTextField(value = jamendoField, onValueChange = { jamendoField = it }, modifier = Modifier.fillMaxWidth(), singleLine = true)
-        Text(stringResource(R.string.jamendo_key_help), color = Muted, fontSize = 11.sp, modifier = Modifier.padding(top = 4.dp, bottom = 14.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Button(onClick = {
-                scope.launch {
-                    settings.setYoutubeKey(ytField.trim())
-                    settings.setJamendoClientId(jamendoField.trim())
-                    saved = true
-                }
-            }) { Text(stringResource(R.string.save)) }
-            if (saved) {
-                Spacer(Modifier.width(10.dp))
-                Text(stringResource(R.string.saved), color = Green, fontSize = 12.sp)
+        Text("Modo offline", color = Ink, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(10.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text("Solo música descargada", color = Ink, fontSize = 13.5.sp)
+                Text(
+                    if (!isOnline) "Sin conexión detectada — activado automáticamente"
+                    else "Actívalo para navegar solo tu biblioteca, aunque tengas internet",
+                    color = Muted, fontSize = 11.sp, lineHeight = 15.sp
+                )
             }
+            Switch(
+                checked = offlineModeManual,
+                onCheckedChange = onSetOfflineMode,
+                colors = SwitchDefaults.colors(checkedTrackColor = Green)
+            )
         }
 
+        // ---- Language ----
         Spacer(Modifier.height(24.dp))
         Text("Idioma / Language", color = Ink, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(10.dp))
@@ -154,11 +151,8 @@ fun SettingsScreen(
                 )
             }
         }
-        Text(
-            "El cambio de idioma en Android normalmente se aplica desde Ajustes del sistema > Idiomas de la app. Esta preferencia queda guardada para cuando se active esa integración.",
-            color = Muted, fontSize = 11.sp, modifier = Modifier.padding(top = 8.dp)
-        )
 
+        // ---- Storage ----
         Spacer(Modifier.height(24.dp))
         Text("Almacenamiento", color = Ink, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
         Spacer(Modifier.height(10.dp))

@@ -39,10 +39,27 @@ fun SearchScreen(
     onSearch: (Source, String) -> Unit,
     onPlayYoutube: (YoutubeItem) -> Unit,
     onPlayJamendo: (JamendoTrack) -> Unit,
-    onDownloadJamendo: (JamendoTrack) -> Unit
+    onDownloadJamendo: (JamendoTrack) -> Unit,
+    isOffline: Boolean
 ) {
     var source by remember { mutableStateOf(Source.YOUTUBE) }
     var query by remember { mutableStateOf("") }
+
+    if (isOffline) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text("Sin conexión", color = Ink, fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "El modo offline está activo. Buscar necesita internet — puedes seguir escuchando lo que ya descargaste desde Biblioteca.",
+                color = Muted, fontSize = 13.sp, lineHeight = 19.sp
+            )
+        }
+        return
+    }
 
     Column(modifier = Modifier.fillMaxSize().padding(horizontal = 20.dp, vertical = 16.dp)) {
         Text(stringResource(R.string.nav_search), color = Ink, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)

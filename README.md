@@ -49,7 +49,40 @@ Cómo conseguir las claves (gratis, ~5 min cada una):
   application" → copia el Client ID
 
 
-## 🚀 Compilar el APK con GitHub Actions
+## 🔔 Reproducción en segundo plano + notificación
+
+La música ahora sigue sonando aunque cierres la app o apagues la pantalla,
+y aparece una notificación real con portada, título y controles
+(reproducir/pausar), gracias a un `MediaSessionService` (`PlaybackService.kt`)
+que comparte el mismo reproductor que usa la interfaz. En Android 13+ la
+app pide el permiso de notificaciones la primera vez que abres.
+
+## 🔑 Inicio de sesión con Google
+
+Ya habilitaste el proveedor "Google" en Firebase Authentication, así que
+solo falta una cosa: Firebase genera automáticamente un recurso llamado
+`default_web_client_id` dentro de tu `google-services.json` — si el build
+falla diciendo que no encuentra ese string, es porque el
+`google-services.json` que subiste es de **antes** de activar el método
+Google. Solución: en Firebase Console, ve a **Authentication → Sign-in
+method** y confirma que "Google" está en verde/habilitado, luego
+**Configuración del proyecto → tus apps → descarga google-services.json de
+nuevo** y reemplaza el que tienes en `app/` con esta versión nueva.
+
+## 📴 Modo offline
+
+Se activa solo cuando el teléfono no tiene internet, y también lo puedes
+forzar manualmente desde **Ajustes → Modo offline** (útil para ahorrar
+datos). En ese modo, Buscar se desactiva y solo se puede usar la música ya
+descargada (Biblioteca / Inicio).
+
+## 🏠 Inicio ya no está vacío
+
+Muestra tus canciones favoritas, tu música descargada, y una sección
+"Descubre" con canciones de Jamendo (requiere tu Client ID de Jamendo y
+conexión — se oculta automáticamente en modo offline).
+
+
 1. Sube esta carpeta completa (`verdor-android/`, con todo su contenido, tal
    cual) como la raíz de un repositorio de GitHub, rama `main`.
 2. El workflow `.github/workflows/build-apk.yml` corre automáticamente en
